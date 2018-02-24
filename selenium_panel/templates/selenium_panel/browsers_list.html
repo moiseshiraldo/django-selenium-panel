@@ -1,0 +1,25 @@
+{% extends "selenium_panel/base.html" %}
+{% load staticfiles %}
+
+{% block browsers_section %}active{% endblock %}
+
+{% block content %}
+<h1 class="display-5 mb-4">Connected browsers</h1>
+<div id="browser-accordion" role="tablist" aria-multiselectable="true">
+    {% verbatim %}
+    <p v-if="error" class="alert alert-danger" role="alert" v-cloak>{{ error }}</p>
+    <p v-else-if="browsers.length === 0" class="alert alert-warning" role="alert" v-cloak>No browsers connected. Launch one using <code>python manage.py runselenium</code>.</p>
+    {% endverbatim %}
+    <browser
+        v-for="(browser, i) in browsers"
+        :i="i"
+        :metadata="browser"
+        :run-task-url="urls.run_task"
+        :tasks="tasks"
+        :servers="servers"
+    >
+    </browser>
+</div>
+{% include "selenium_panel/browser.html" %}
+<script type="text/javascript" src="{% static 'selenium_panel/js/browsers.js' %}"></script>
+{% endblock %}

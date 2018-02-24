@@ -1,0 +1,188 @@
+{% verbatim %}
+<script type="text/x-template" id="browser-template">
+    <div class="card mb-1">
+        <div class="card-header" role="tab">
+            <h5 class="mb-0">
+                <i :class="'fa fa-' + metadata.driver" aria-hidden="true"></i>
+                <a
+                    class="collapsed ml-2"
+                    data-toggle="collapse"
+                    data-parent="#accordion"
+                    :href="'#collapseOne' + i"
+                    aria-expanded="false"
+                    :aria-controls="'collapseOne' + i"
+                >{{ metadata.username }}@{{ metadata.service_url }}</a>
+                <span class="badge badge-info">{{ metadata.platform }}</span>
+                <span :class="'pull-right badge ' + statusBadge">
+                    {{ metadata.status }}
+                </span>
+            </h5>
+        </div>
+        <div
+            :id="'collapseOne' + i"
+            class="collapse"
+            role="tabpanel"
+            aria-labelledby="headingOne"
+        >
+            <div class="card-block">
+                <p
+                    v-if="error"
+                    class="alert alert-danger m-3"
+                    role="alert"
+                    v-cloak
+                >{{ error }}</p>
+                <p
+                    v-show="metadata.status === 'Running'"
+                    class="m-3"
+                    v-cloak
+                >Running task.</p>
+                <form
+                    v-show="showTaskForm"
+                    class="m-3"
+                    v-on:submit.prevent="runTask"
+                    v-cloak
+                >
+                    <fieldset>
+                        <legend>Details</legend>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">Task</label>
+                            <div class="col-sm-10">
+                                <select
+                                    v-model="taskForm.task"
+                                    class="custom-select"
+                                    required>
+                                    <option
+                                        v-for="(task, key) in tasks"
+                                        :value="key"
+                                    >{{ task.name }}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">
+                                Server
+                            </label>
+                            <div class="col-sm-10">
+                                <select
+                                    v-model="taskForm.server"
+                                    class="custom-select"
+                                    required
+                                >
+                                    <option
+                                        v-for="(server, key) in servers"
+                                        :value="key"
+                                    >{{ server.name }}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div
+                            class="form-group row"
+                            v-if="'username' in servers[taskForm.server]"
+                        >
+                            <label class="col-sm-2 col-form-label">
+                                Username
+                            </label>
+                            <div class="col-sm-10">
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    v-model="taskForm.username"
+                                    required
+                                >
+                            </div>
+                        </div>
+                        <div
+                            class="form-group row"
+                            v-if="'password' in servers[taskForm.server]"
+                        >
+                            <label class="col-sm-2 col-form-label">
+                                Password
+                            </label>
+                            <div class="col-sm-10">
+                                <input
+                                    type="password"
+                                    class="form-control"
+                                    v-model="taskForm.password"
+                                    required>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>Options</legend>
+                        <div
+                            v-for="parent in tasks[taskForm.task].parents"
+                            class="form-group row"
+                        >
+                            <label class="col-sm-2 col-form-label"></label>
+                            <div class="col-sm-10">
+                                <div class="form-check">
+                                    <input
+                                        type="checkbox"
+                                        v-model="taskForm.parents"
+                                        :value="parent"
+                                    >
+                                    <label class="form-check-label">
+                                        {{ tasks[parent].name }}
+                                    </label>
+                                </div>
+                                <div v-show="taskForm.parents.indexOf(parent) !== -1">
+                                    <div
+                                        v-for="(argument, key) in tasks[parent].config.arguments"
+                                        v-show="!argument.from_parent || taskForm.parents.indexOf(tasks[parent].parents.slice(-1)[0]) === -1"
+                                        class="form-group row"
+                                    >
+                                        <div class="col-sm-10">
+                                            <input
+                                                type="text"
+                                                class="form-control"
+                                                v-model="taskForm.arguments[key]"
+                                                :placeholder="argument.name"
+                                                :required="argument.requierd && taskForm.parents.indexOf(parent) !== -1 && (!argument.from_parent || taskForm.parents.indexOf(tasks[parent].parents.slice(-1)[0]) === -1)"
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div
+                            v-for="(argument, key) in tasks[taskForm.task].config.arguments"
+                            v-show="!argument.from_parent || taskForm.parents.indexOf(tasks[taskForm.task].parents.slice(-1)[0]) === -1"
+                            class="form-group row"
+                        >
+                            <label class="col-sm-2 col-form-label">
+                                {{ argument.name }}
+                            </label>
+                            <div class="col-sm-10">
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    v-model="taskForm.arguments[key]"
+                                    :required="argument.required && (!argument.from_parent || taskForm.parents.indexOf(tasks[taskForm.task].parents.slice(-1)[0]) === -1)"
+                                >
+                            </div>
+                        </div>
+                    </fieldset>
+                    <div class="form-group row mt-4">
+                        <div class="btn-group ml-3" role="group">
+                            <button type="submit" class="btn btn-success btn-sm">
+                                <i class="fa fa-gear" aria-hidden="true"></i> Run
+                            </button>
+                            <button v-on:click="showTaskForm = false" type="button" class="btn btn-primary btn-sm">
+                                <i class="fa fa-step-backward" aria-hidden="true"></i> Cancel
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                <button
+                    v-show="!showTaskForm && metadata.status !== 'Running'"
+                    v-on:click="showTaskForm = true; error=null"
+                    type="button"
+                    class="btn btn-success btn-sm m-3"
+                >
+                    <i class="fa fa-plus-square" aria-hidden="true"></i> Add task
+                </button>
+            </div>
+        </div>
+    </div>
+</script>
+{% endverbatim %}
