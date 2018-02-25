@@ -10,7 +10,7 @@ setup(
   name='django-selenium-panel',
   version='0.1.0',
   description='A Django panel to control Selenium testing on remote browsers',
-  long_description=read('README.rst'),
+  long_description=read('README.md'),
   url='https://github.com/moiseshiraldo/django-selenium-panel',
   author='Moises Hiraldo',
   author_email='moiseshiraldo@gmail.com',
