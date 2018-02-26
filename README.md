@@ -35,7 +35,7 @@ First, download the driver for the browser you want to use (you can find the lin
 Add the browser type and the path to the driver to your project configuration:
 
 ```python
-SELENIUM = {
+SELENIUM_PANEL = {
     'BROWSER': "firefox",
     'DRIVER': "/home/username/geckodriver",
 }
@@ -78,7 +78,7 @@ Interact with the Selenium driver using `self.browser`. Have a look at [Selenium
 Once your task is ready, add it to your project configuration so you can launch it on any browser connected to the Selenium Panel:
 
 ```python
-SELENIUM = {
+SELENIUM_PANEL = {
     # ...
     'TASKS': [
         # ...

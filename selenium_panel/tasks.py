@@ -17,7 +17,7 @@ class SeleniumRemoteTask(Task):
             command_executor=kwargs.pop('service_url'),
             session_id=kwargs.pop('session_id'),
         )
-        self.server = settings.SELENIUM['SERVERS'][
+        self.server = settings.SELENIUM_PANEL['SERVERS'][
             kwargs.pop('server')]['address']
         self.username = kwargs.pop('username', "")
         self.password = kwargs.pop('password', "")

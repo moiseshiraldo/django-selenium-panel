@@ -27,27 +27,30 @@ class SeleniumIndexView(TemplateView):
                 'run_task': reverse("selenium_panel:run_task"),
             },
             'tasks': self.get_tasks(),
-            'servers': settings.SELENIUM['SERVERS'],
+            'servers': settings.SELENIUM_PANEL['SERVERS'],
         })
         return context
 
     def get_tasks(self):
         celery_app.loader.import_default_modules()
-        tasks = OrderedDict()
-        for (task, name) in settings.SELENIUM['TASKS']:
+        tasks_data = OrderedDict()
+        tasks = settings.SELENIUM_PANEL.get('TASKS', [])
+        tasks_names = dict(tasks).keys()
+        for (task, name) in tasks:
             task_class = type(celery_app.tasks[task])
             parents = []
             parent_class = task_class.__bases__[0]
             while parent_class.name != 'selenium.base_task':
-                parents.append(parent_class.name)
+                if parent_class.name in tasks_names:
+                    parents.append(parent_class.name)
                 parent_class = parent_class.__bases__[0]
             parents.reverse()
-            tasks[task] = {
+            tasks_data[task] = {
                 'name': name,
                 'config': task_class.SELENIUM_CONFIG,
                 'parents': parents,
             }
-        return tasks
+        return tasks_data
 
 
 class SeleniumBrowserListView(View):

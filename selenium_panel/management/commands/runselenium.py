@@ -33,26 +33,26 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        if not getattr(settings, 'SELENIUM', False):
+        if not getattr(settings, 'SELENIUM_PANEL', False):
             raise CommandError("You must set selenium settings first.")
 
-        if not settings.SELENIUM.get('BROWSER'):
+        if not settings.SELENIUM_PANEL.get('BROWSER'):
             raise CommandError("You must set a browser.")
 
-        if not self.driver.get(settings.SELENIUM['BROWSER']):
+        if not self.driver.get(settings.SELENIUM_PANEL['BROWSER']):
             raise CommandError("Browser setting not recognized.")
 
-        if not settings.SELENIUM.get('DRIVER'):
+        if not settings.SELENIUM_PANEL.get('DRIVER'):
             raise CommandError("You must set the path to the geckodriver.")
 
-        driver = self.driver[settings.SELENIUM['BROWSER']]
-        browser = driver(executable_path=settings.SELENIUM['DRIVER'])
+        driver = self.driver[settings.SELENIUM_PANEL['BROWSER']]
+        browser = driver(executable_path=settings.SELENIUM_PANEL['DRIVER'])
 
         browser_data = {
             'service_url': browser.service.service_url,
             'session_id': browser.session_id,
             'username': getpass.getuser(),
-            'driver': settings.SELENIUM['BROWSER'],
+            'driver': settings.SELENIUM_PANEL['BROWSER'],
             'platform': "{} {} {}".format(
                 platform.system(),
                 platform.release(),
@@ -79,7 +79,7 @@ class Command(BaseCommand):
             "Starting at %(url)s\n"
             "With session ID %(session_id)s\n"
         ) % {
-            'browser': settings.SELENIUM['BROWSER'],
+            'browser': settings.SELENIUM_PANEL['BROWSER'],
             'url': browser.service.service_url,
             'session_id': browser.session_id,
         })
