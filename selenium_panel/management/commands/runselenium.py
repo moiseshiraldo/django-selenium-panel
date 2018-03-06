@@ -48,6 +48,10 @@ class Command(BaseCommand):
         driver = self.driver[settings.SELENIUM_PANEL['BROWSER']]
         browser = driver(executable_path=settings.SELENIUM_PANEL['DRIVER'])
 
+        self.add_browser(browser, server=options.get('server'))
+        self.listen(browser)
+
+    def add_browser(self, browser, server=None):
         browser_data = {
             'service_url': browser.service.service_url,
             'session_id': browser.session_id,
@@ -59,12 +63,10 @@ class Command(BaseCommand):
                 "-".join(platform.dist()),
             )
         }
-
-        if options.get('server'):
-            server = options['server']
+        if server:
             if server.endswith('/'):
                 server = server[:-1]
-            url = "{}{}".format(server, reverse('selenium:add_browser'))
+            url = "{}{}".format(server, reverse('selenium_panel:add_browser'))
             response = requests.post(url, json=browser_data)
             if response.status_code != 201:
                 browser.quit()
@@ -72,6 +74,7 @@ class Command(BaseCommand):
         else:
             Browser.objects.create(**browser_data)
 
+    def listen(self, browser, server=None):
         now = datetime.now().strftime('%B %d, %Y - %X')
         self.stdout.write(now)
         self.stdout.write((
@@ -83,21 +86,22 @@ class Command(BaseCommand):
             'url': browser.service.service_url,
             'session_id': browser.session_id,
         })
-
         try:
             while True:
                 browser.execute(BrowserCommand.STATUS)
                 time.sleep(30)
         except (socket.error, CannotSendRequest):
-            Browser.objects.filter(
-                service_url=browser.service.service_url,
-                session_id=browser.session_id,
-            ).delete()
+            if not server:
+                Browser.objects.filter(
+                    service_url=browser.service.service_url,
+                    session_id=browser.session_id,
+                ).delete()
             raise CommandError("Browser closed unexpectedly.")
         except KeyboardInterrupt:
-            Browser.objects.filter(
-                service_url=browser.service.service_url,
-                session_id=browser.session_id,
-            ).delete()
+            if not server:
+                Browser.objects.filter(
+                    service_url=browser.service.service_url,
+                    session_id=browser.session_id,
+                ).delete()
             browser.quit()
             sys.exit(0)

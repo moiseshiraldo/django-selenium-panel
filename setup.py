@@ -8,7 +8,7 @@ def read(fname):
 
 setup(
   name='django-selenium-panel',
-  version='0.1.1',
+  version='0.2.0',
   description='A Django panel to control Selenium testing on remote browsers',
   long_description=read('README.md'),
   url='https://github.com/moiseshiraldo/django-selenium-panel',

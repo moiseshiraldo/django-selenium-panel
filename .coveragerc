@@ -1,0 +1,6 @@
+[run]
+source = selenium_panel
+branch = True
+
+[report]
+omit = *tests*,*migrations*
