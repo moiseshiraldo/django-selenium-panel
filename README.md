@@ -1,5 +1,8 @@
 # Django Selenium Panel
 
+[![Build Status](https://travis-ci.org/moiseshiraldo/django-selenium-panel.svg?branch=master)](https://travis-ci.org/moiseshiraldo/django-selenium-panel)
+[![Test coverage status](https://codecov.io/gh/moiseshiraldo/django-selenium-panel/branch/master/graph/badge.svg)](https://codecov.io/gh/moiseshiraldo/django-selenium-panel)
+
 A Django web panel to control the execution of Selenium automated tests on browsers running within the local network.
 
 ## Installation
