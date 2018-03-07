@@ -1,16 +1,13 @@
-import os
-from distutils.core import setup
+from io import open
 
-
-def read(fname):
-    return open(os.path.join(os.path.dirname(__file__), fname)).read()
+from setuptools import setup
 
 
 setup(
   name='django-selenium-panel',
   version='0.2.0',
   description='A Django panel to control Selenium testing on remote browsers',
-  long_description=read('README.md'),
+  long_description=open('README.md').read(),
   url='https://github.com/moiseshiraldo/django-selenium-panel',
   author='Moises Hiraldo',
   author_email='moiseshiraldo@gmail.com',
