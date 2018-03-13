@@ -72,7 +72,16 @@ var Browser = Vue.extend({
                 component.error = "An unexpected error occurred.\
                               Please try again later.";
             });
-        }
+        },
+        showArgument: function(argument, task) {
+            firstParent = this.tasks[task].parents.slice(-1)[0];
+            parentSelected = this.taskForm.parents.indexOf(firstParent) === -1;
+            if ( !argument.from_parent || parentSelected ) {
+                return true;
+            } else {
+                return false;
+            }
+        },
     },
     mounted: function () {
         this.taskForm.server = "default";
