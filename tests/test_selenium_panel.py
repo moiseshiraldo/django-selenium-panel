@@ -31,6 +31,20 @@ class BrowserMock(object):
         pass
 
 
+class AsyncResultMock(object):
+    fail = False
+
+    def __init__(self, fail=False, *args, **kwargs):
+        if fail:
+            self.fail = True
+
+    def failed(self):
+        return self.fail
+
+    def ready(self):
+        return False
+
+
 class SeleniumPanelTestCase(TestCase):
 
     def setUp(self):
@@ -95,9 +109,9 @@ class SeleniumPanelTestCase(TestCase):
 
     @patch('selenium_panel.views.Browser.status', new_callable=PropertyMock)
     @patch('selenium_panel.tasks.GoogleSearchTask.run')
-    def test_run_task_view(self, mock_run, status_mock):
+    def test_run_task_view(self, mock_run, mock_status):
         mock_run.return_value = None
-        status_mock.return_value = "Running"
+        mock_status.return_value = "Running"
         data = {
             'task': 'selenium.google_search',
             'service_url': self.browser.service_url,
@@ -112,6 +126,14 @@ class SeleniumPanelTestCase(TestCase):
             service_url=self.browser.service_url,
             session_id=self.browser.session_id
         )
+
+    @patch('selenium_panel.models.AsyncResult')
+    def test_browser_status(self, mock_async_result):
+        self.browser.running_task = "qwerty"
+        mock_async_result.return_value = AsyncResultMock(fail=True)
+        self.assertEqual(self.browser.status, "Failed")
+        mock_async_result.return_value = AsyncResultMock()
+        self.assertEqual(self.browser.status, "Running")
 
     def test_webdriver(self):
         browser = RemoteWebDriver(
@@ -135,6 +157,20 @@ class SeleniumTaskTestCase(TestCase):
 
 
 class SeleniumPanelManagementCommandTestCase(LiveServerTestCase):
+
+    def test_no_settings(self):
+        assert_error = self.assertRaises(CommandError)
+        with self.settings(SELENIUM_PANEL=None), assert_error:
+            call_command('runselenium')
+        # No browser
+        with self.settings(SELENIUM_PANEL={}), assert_error:
+            call_command('runselenium')
+        # Unknown browser
+        with self.settings(SELENIUM_PANEL={'BROWSER': "none"}), assert_error:
+            call_command('runselenium')
+        # No driver path
+        with self.settings(SELENIUM_PANEL={'BROWSER': "chrome"}), assert_error:
+            call_command('runselenium')
 
     def test_add_browser_method(self):
         command = runselenium.Command()
