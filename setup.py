@@ -5,7 +5,7 @@ from setuptools import setup
 
 setup(
   name='django-selenium-panel',
-  version='0.2.1',
+  version='0.3.0',
   description='A Django panel to control Selenium testing on remote browsers',
   long_description=open('README.md').read(),
   url='https://github.com/moiseshiraldo/django-selenium-panel',
@@ -15,7 +15,7 @@ setup(
   packages=['selenium_panel'],
   python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*",
   install_requires=[
-        'Django>=1.8,<1.9',
+        'Django>=1.8,<2',
         'celery>=3.1',
         'selenium',
         'requests'
